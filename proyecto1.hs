@@ -35,4 +35,4 @@ breakLine n (l:lines) = if largo <= n
                         where largo = (tokenLength l)
                               cumplen = (breakLine (n-largo) lines)
 
-breakLine n ([]) = ([],[])
+breakLine _ ([]) = ([],[])
