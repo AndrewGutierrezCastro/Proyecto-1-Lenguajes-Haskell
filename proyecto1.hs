@@ -9,7 +9,7 @@ string2Token :: String -> Token
 tokenLength :: Token -> Int
 lineLength :: Line -> Int
 breakLine :: Int -> Line -> (Line,Line)
-
+mergers :: [String] -> [(String, String)] 
 main = putStrLn "Hello, World!"
 
 string2Line str =  map string2Token (words str)
@@ -29,10 +29,20 @@ tokenLength (Blank) = 1
 tokenLength (HypWord hypWrd) = length hypWrd
 
 breakLine n (l:lines) = if largo <= n 
-                            then (l : (fst cumplen), snd cumplen )
+                            then (l : fst cumplen, snd cumplen )
                         else
                             ([],l:lines)
                         where largo = (tokenLength l)
                               cumplen = (breakLine (n-largo) lines)
 
 breakLine _ ([]) = ([],[])
+
+mergers (s:strs) = if strs /= []
+                        then  combinacion : mergers ( cabeza: cola)
+                    else 
+                        []
+                    where cabeza = (s++(head strs))
+                          cola =  (tail strs)
+                          combinacion = (s, concat strs)
+
+ 
