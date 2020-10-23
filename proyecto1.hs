@@ -1,4 +1,5 @@
 type Line = [Token]
+type HypMap = Data.Map.Map String [String]
 data Token = Word String | Blank | HypWord String 
                 deriving (Eq, Show)
 
@@ -10,6 +11,13 @@ tokenLength :: Token -> Int
 lineLength :: Line -> Int
 breakLine :: Int -> Line -> (Line,Line)
 mergers :: [String] -> [(String, String)] 
+enHyp :: HypMap
+
+enHyp = Data.Map.fromList [ ("controla",["con","tro","la"]), 
+                            ("futuro",["fu","tu","ro"]),
+                            ("presente",["pre","sen","te"])]
+
+
 main = putStrLn "Hello, World!"
 
 string2Line str =  map string2Token (words str)
