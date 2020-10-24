@@ -15,6 +15,8 @@ breakLine :: Int -> Line -> (Line,Line)
 mergers :: [String] -> [(String, String)] 
 enHyp :: HypMap
 hyphenate :: HypMap -> Token -> [(Token,Token)]
+--lineBreaks :: HypMap -> Int -> Line -> [(Line,Line)]
+
 
 enHyp = Data.Map.fromList [ ("controla",["con","tro","la"]), 
                             ("futuro",["fu","tu","ro"]),
@@ -47,6 +49,11 @@ breakLine n (l:lines) = if largo <= n
                               cumplen = (breakLine (n-largo) lines)
 
 breakLine _ ([]) = ([],[])
+--Mergers
+--
+--
+--
+--
 
 mergers (s:strs) =  if strs /= []
                         then  combinacion : mergers ( cabeza:cola)
@@ -55,7 +62,11 @@ mergers (s:strs) =  if strs /= []
                     where cabeza = (s++(head strs))
                           cola =  (tail strs)
                           combinacion = (s, concat strs)
-
+--Hyphenate
+--
+--
+--
+--
 hyphenate mapa (Word word) = if (member sinPuntos mapa)
                                 then map (\(x, y) -> (HypWord x, Word (y++puntos) )) (mergers (mapa ! sinPuntos))
                             else 
@@ -63,5 +74,20 @@ hyphenate mapa (Word word) = if (member sinPuntos mapa)
                             where
                                 sinPuntos = (sacarPuntos word)
                                 puntos = drop (length sinPuntos) word 
-
+--auxiliar de hyphenate
 sacarPuntos word = takeWhile (\str->str /= '.') word
+
+--Linebreaks
+--
+--
+--
+--
+lineBreaks mapa n line = takeWhile (\x -> (lineLength (fst x) ) <= n) listaCompleta
+    where listaCompleta = 
+            if  (length line) == 1
+                then [((take 1 line),[])] 
+            else 
+                (inicioLista, [last line]) : map lineBreaksAux (hyphenate enHyp (last line) ) 
+          inicioLista = (init line) 
+          lineBreaksAux tupla = (inicioLista ++ [(fst tupla)], [(snd tupla)])  
+
