@@ -1,3 +1,5 @@
+import Data.Map (Map, lookup, fromList, (!), member)
+
 type Line = [Token]
 type HypMap = Data.Map.Map String [String]
 data Token = Word String | Blank | HypWord String 
@@ -12,6 +14,7 @@ lineLength :: Line -> Int
 breakLine :: Int -> Line -> (Line,Line)
 mergers :: [String] -> [(String, String)] 
 enHyp :: HypMap
+hyphenate :: HypMap -> Token -> [(Token,Token)]
 
 enHyp = Data.Map.fromList [ ("controla",["con","tro","la"]), 
                             ("futuro",["fu","tu","ro"]),
@@ -45,12 +48,20 @@ breakLine n (l:lines) = if largo <= n
 
 breakLine _ ([]) = ([],[])
 
-mergers (s:strs) = if strs /= []
-                        then  combinacion : mergers ( cabeza: cola)
+mergers (s:strs) =  if strs /= []
+                        then  combinacion : mergers ( cabeza:cola)
                     else 
                         []
                     where cabeza = (s++(head strs))
                           cola =  (tail strs)
                           combinacion = (s, concat strs)
 
- 
+hyphenate mapa (Word word) = if (member sinPuntos mapa)
+                                then map (\(x, y) -> (HypWord x, Word (y++puntos) )) (mergers (mapa ! sinPuntos))
+                            else 
+                                []
+                            where
+                                sinPuntos = (sacarPuntos word)
+                                puntos = drop (length sinPuntos) word 
+
+sacarPuntos word = takeWhile (\str->str /= '.') word
