@@ -15,7 +15,7 @@ breakLine :: Int -> Line -> (Line,Line)
 mergers :: [String] -> [(String, String)] 
 enHyp :: HypMap
 hyphenate :: HypMap -> Token -> [(Token,Token)]
---lineBreaks :: HypMap -> Int -> Line -> [(Line,Line)]
+lineBreaks :: HypMap -> Int -> Line -> [(Line,Line)]
 
 
 enHyp = Data.Map.fromList [ ("controla",["con","tro","la"]), 
