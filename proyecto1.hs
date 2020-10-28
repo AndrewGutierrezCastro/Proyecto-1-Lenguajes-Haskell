@@ -16,7 +16,7 @@ mergers :: [String] -> [(String, String)]
 enHyp :: HypMap
 hyphenate :: HypMap -> Token -> [(Token,Token)]
 lineBreaks :: HypMap -> Int -> Line -> [(Line,Line)]
-
+--insertBlanks :: Int -> Line -> Line
 
 enHyp = Data.Map.fromList [ ("controla",["con","tro","la"]), 
                             ("futuro",["fu","tu","ro"]),
@@ -91,3 +91,40 @@ lineBreaks mapa n line = takeWhile (\x -> (lineLength (fst x) ) <= n) listaCompl
           inicioLista = (init line) 
           lineBreaksAux tupla = (inicioLista ++ [(fst tupla)], [(snd tupla)])  
 
+--InsertBlanks 
+insertBlanks n line
+    | line == [] = []
+    | (tail line) == [] || n <= 0 = line
+    | n > 0 = (insertBlanksAux line listaBlanks)
+    where listaBlanks = repElemt Blank numBlank n []
+          numBlank  = ceiling( div :: Double)
+          div =  ( (fromIntegral n) / (fromIntegral numEspacios) ) 
+          numEspacios =  ((length line) - 1 )
+
+insertBlanksAux line listBlank
+    | line == [] || listBlank == [] = []
+    | otherwise = (head line):(head listBlank) ++ insertBlanksAux (tail line) (tail listBlank)
+
+--elem : elemento a repetir
+--n : cantidad de veces consecuitivas de repeticion
+--m : numero maximo de elem en la lista final
+--list : lista a guardar las repeticiones
+repElemt elem n m list
+    | (m-n) >= 0 =  (repElemt elem n (m-n) (list ++ [ replicate n elem ]) ) 
+    | (m-n) < 0 = (list ++ [ replicate m elem ])
+    | otherwise = list
+    
+
+separarYalinear n separar ajuste tira
+    | separar == "NOSEPARAR" && ajuste == "NOAJUSTAR" = pegadoSinAjuste n tira
+    | separar == "NOSEPARAR" && ajuste == "AJUSTAR" = pegadoConAjuste n tira
+    | separar == "SEPARAR" && ajuste == "NOAJUSTAR" = separadoSinAjuste n tira
+    | separar == "SEPARAR" && ajuste == "AJUSTAR" = separadoConAjuste n tira
+
+pegadoSinAjuste n tira = tira
+
+pegadoConAjuste n tira = tira
+
+separadoSinAjuste n tira = tira
+
+separadoConAjuste n tira = tira
