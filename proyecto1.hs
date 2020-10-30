@@ -70,10 +70,6 @@ mergers (s:strs) =  if strs /= []
                           cola =  (tail strs)
                           combinacion = (s, concat strs)
 --Hyphenate
---
---
---
---
 hyphenate mapa (Word word) = if (member sinPuntos mapa)
                                 then map (\(x, y) -> (HypWord x, Word (y++puntos) )) (mergers (mapa ! sinPuntos))
                             else 
@@ -85,10 +81,6 @@ hyphenate mapa (Word word) = if (member sinPuntos mapa)
 sacarPuntos word = takeWhile (\str->str /= '.') word
 
 --Linebreaks
---
---
---
---
 lineBreaks mapa n line = takeWhile (\x -> (lineLength (fst x) ) <= n) listaCompleta
     where listaCompleta = 
             if  (length line) == 1
@@ -158,12 +150,16 @@ pegadoConAjuste n [] lstFinal lstAcum =  (lstFinal++[(insertBlanks (n-largoLstAc
           numEspacios = (length lstAcum)-1
     --el largo de la lista acumulada + el largo del siguiente token 
 
+--SEPARADOS SIN AJUSTE
+separadoSinAjuste n [] lstFinal lstAcum = (lstFinal++[(insertBlanks numEspacios lstAcum)])
+    where largoLstAcm = (lineLength lstAcum)  
+          numEspacios = (length lstAcum)-1
 
 separadoSinAjuste n (x:xs) lstFinal lstAcum
     | largoLstAcm < n = separadoSinAjuste n xs lstFinal (lstAcum++[x]) 
-    | largoLstAcm == n = pegadoConAjuste n xs (lstFinal++[(lstAcum++[x])]) []
+    | largoLstAcm == n = pegadoConAjuste n xs (lstFinal++[(insertBlanks (n-largoLstAcm+numEspacios) lstAcum++[x])]) []
    
-    where largoLstAcm = (largoLst +(tokenLength x)) 
+    where largoLstAcm = (largoLst + (tokenLength x)) 
           largoLst = lineLength lstAcum
           numEspacios = (length lstAcum)-1
     --el largo de la lista acumulada + el largo del siguiente token 
@@ -175,17 +171,16 @@ separadoSinAjuste n (x:xs) lstFinal lstAcum
 
     where largoLstAcm = (largoLst +(tokenLength x)) 
           largoLst = lineLength lstAcum
-          numEspacios = (lineLength lstSeparada)-1
           lstSeparada = (lstAcum++(fst wrdSep))
-          wrdSep = separadoSinAjusteAux x n largoLst --([HypWord x], [Word y])
-          
+          wrdSep = separadoAux x n largoLst --([HypWord x], [Word y])
+          numEspacios = (length lstSeparada)-1
     --el largo de la lista acumulada + el largo del siguiente token 
     --el largo de la lista acumulada
     --la cantidad de espacios en la lista separada
     --palabra separada es una tupla con x elemento con guion y el resto en y
 
 --Esta funcion recibe un token Word que se desea separar al maximo pero sin superar el largo n
-separadoSinAjusteAux x n largoLst = 
+separadoAux x n largoLst = 
     if tupla == ([],[])
         then ([], [x])
     else
@@ -199,9 +194,38 @@ maximaSeparacion (x:xs) n largoLst (y:yz)
     | (tokenLength (fst x))+largoLst == n = ([(fst x)], [(snd x)])
     | (tokenLength (fst x))+largoLst > n = ([y], yz)
 
-maximaSeparacion (x:xs) n largoLst [] = maximaSeparacion xs n largoLst ([(fst x), (snd x)])
+maximaSeparacion (x:xs) n largoLst [] 
+    | (tokenLength (fst x))+largoLst <= n = maximaSeparacion xs n largoLst ([(fst x), (snd x)])
+    | otherwise =  ([],[])
 
 maximaSeparacion [] _ _ []  = ([],[])
 maximaSeparacion [] _ _ (x:xs) = ([x], xs) 
 
-separadoConAjuste n lstTokens lstFinal lstAcum = lstFinal
+separadoConAjuste n [] lstFinal lstAcum = (lstFinal++[(insertBlanks (n-largoLstAcm+numEspacios) lstAcum)])
+    where largoLstAcm = (lineLength lstAcum)  
+          numEspacios = (length lstAcum)-1
+
+separadoConAjuste n (x:xs) lstFinal lstAcum
+    | largoLstAcm < n = separadoConAjuste n xs lstFinal (lstAcum++[x]) 
+    | largoLstAcm == n = separadoConAjuste n xs (lstFinal++[(insertBlanks (n-largoLstAcm+numEspacios) (lstAcum++[x]))]) []
+   
+    where largoLstAcm = (largoLst + (tokenLength x)) 
+          largoLst = lineLength lstAcum
+          numEspacios = (length lstAcum)-1
+    --el largo de la lista acumulada + el largo del siguiente token 
+    --el largo de la lista acumulada
+    --el numero de espacios en la lista acumulada
+
+separadoConAjuste n (x:xs) lstFinal lstAcum
+     | largoLstAcm > n = separadoConAjuste n xs (lstFinal++[(insertBlanks (n-largoSprd+numEspacios) lstSeparada)]) (snd wrdSep) 
+
+    where largoLstAcm = (largoLst +(tokenLength x)) 
+          largoLst = lineLength lstAcum
+          lstSeparada = (lstAcum++(fst wrdSep))
+          largoSprd = lineLength lstSeparada 
+          wrdSep = separadoAux x n largoLst --([HypWord x], [Word y])
+          numEspacios = (length lstSeparada)-1
+    --el largo de la lista acumulada + el largo del siguiente token 
+    --el largo de la lista acumulada
+    --la cantidad de espacios en la lista separada
+    --palabra separada es una tupla con x elemento con guion y el resto en y
