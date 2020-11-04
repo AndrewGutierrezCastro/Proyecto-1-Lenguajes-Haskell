@@ -1,3 +1,4 @@
+module proyecto1 where 
 import Data.Map (Map, lookup, fromList, (!), member)
 
 type Line = [Token]
