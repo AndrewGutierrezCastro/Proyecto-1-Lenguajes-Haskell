@@ -45,15 +45,20 @@ mainloop estado = do
                hClose outh
                mainloop estado  
 
-     "split"  -> do
-               let lngth = read (tokens!!1) :: Int
+     "split" -> do 
+                mapM_ putStrLn [tokens!!1, tokens!!2, tokens!!3, tokens!!4]
+                mainloop estado
+               {- let lngth = (read (tokens!!1) :: Int)
                    sprar = tokens!!2
                    ajst = tokens!!3
-                   tira = tokens!!4
-               let str = splitFnt lngth sprar ajst tira
-               putStrLn str            
-               mainloop estado
-
+                   tira = tokens!!4 -}
+                
+                --let str = 1 splitFnt lngth sprar ajst tira estado
+                
+            
+                --mapM_ putStrLn str         
+                
+     
      "clsDic" -> do 
                putStr ">> Diccionario Limpio"
                mainloop (fromList[]) 
@@ -93,10 +98,10 @@ descargar outh ((k,v):kvs) = do hPutStrLn outh $ k ++ " " ++ (show v)
                                 descargar outh kvs
 
 --funcion que implementa el comando Split
-splitFnt :: Int -> String -> String -> String ->[String]                             
-splitFnt n "n" "n" tira = separarYalinear n NOSEPARAR NOAJUSTAR tira
-splitFnt n "n" "s" tira = separarYalinear n NOSEPARAR AJUSTAR tira 
-splitFnt n "s" "n" tira = separarYalinear n SEPARAR NOAJUSTAR tira 
-splitFnt n "s" "s" tira = separarYalinear n SEPARAR AJUSTAR tira
+splitFnt :: Int -> String -> String -> String -> Estado ->[String]                             
+splitFnt n "n" "n" tira estado = separarYalinear n NOSEPARAR NOAJUSTAR tira estado
+splitFnt n "n" "s" tira estado = separarYalinear n NOSEPARAR AJUSTAR tira estado
+splitFnt n "s" "n" tira estado = separarYalinear n SEPARAR NOAJUSTAR tira estado 
+splitFnt n "s" "s" tira estado = separarYalinear n SEPARAR AJUSTAR tira estado 
 
 

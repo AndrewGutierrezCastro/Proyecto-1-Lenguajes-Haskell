@@ -111,49 +111,49 @@ repElemt elem n m list
     
 
 
-separarYalinear n NOSEPARAR NOAJUSTAR tira = map line2String (pegadoSinAjuste n (string2Line tira) [] [])
-separarYalinear n NOSEPARAR AJUSTAR tira = map line2String (pegadoConAjuste n (string2Line tira) [] [])
-separarYalinear n SEPARAR NOAJUSTAR tira = map line2String (separadoSinAjuste n (string2Line tira) [] [])
-separarYalinear n SEPARAR AJUSTAR tira = map line2String (separadoConAjuste n (string2Line tira) [] [])
+separarYalinear n NOSEPARAR NOAJUSTAR tira estado = map line2String (pegadoSinAjuste n (string2Line tira) [] [] estado) 
+separarYalinear n NOSEPARAR AJUSTAR tira estado = map line2String (pegadoConAjuste n (string2Line tira) [] [] estado)
+separarYalinear n SEPARAR NOAJUSTAR tira estado = map line2String (separadoSinAjuste n (string2Line tira) [] [] estado)
+separarYalinear n SEPARAR AJUSTAR tira estado = map line2String (separadoConAjuste n (string2Line tira) [] [] estado) 
 
 
 --Esta funcion resive el n de largo maximo, una lista de tokens una lista 
 --final y una lista acumulada para ir creando cada linea
-pegadoSinAjuste n (x:xs) lstFinal lstAcum
-    | largoLstAcm <= n = pegadoSinAjuste n xs lstFinal (lstAcum++[x])
-    | largoLstAcm > n = pegadoSinAjuste n xs (lstFinal++[(insertBlanks numEspacios lstAcum)]) [x]
+pegadoSinAjuste n (x:xs) lstFinal lstAcum estado
+    | largoLstAcm <= n = pegadoSinAjuste n xs lstFinal (lstAcum++[x]) estado
+    | largoLstAcm > n = pegadoSinAjuste n xs (lstFinal++[(insertBlanks numEspacios lstAcum)]) [x] estado
     
     where largoLstAcm = ((lineLength lstAcum )+(tokenLength x))
           numEspacios = (length lstAcum)-1
     --el largo de la lista acumulada + el largo del siguiente token
 
 --Condicion de parada
-pegadoSinAjuste _ [] lstFinal lstAcum = lstFinal++[(insertBlanks numEspacios lstAcum)]
+pegadoSinAjuste _ [] lstFinal lstAcum  estado = lstFinal++[(insertBlanks numEspacios lstAcum)]
     where numEspacios = (length lstAcum)-1
 --Esta funcion
 --
-pegadoConAjuste n (x:xs) lstFinal lstAcum
-    | largoLstAcm < n = pegadoConAjuste n xs lstFinal (lstAcum++[x])
-    | largoLstAcm > n = pegadoConAjuste n xs (lstFinal++[(insertBlanks (n-largoLst+numEspacios) lstAcum)]) [x]
-    | largoLstAcm == n = pegadoConAjuste n xs ( lstFinal++[(insertBlanks numEspacios (lstAcum++[x]))] ) []
+pegadoConAjuste n (x:xs) lstFinal lstAcum estado
+    | largoLstAcm < n = pegadoConAjuste n xs lstFinal (lstAcum++[x]) estado
+    | largoLstAcm > n = pegadoConAjuste n xs (lstFinal++[(insertBlanks (n-largoLst+numEspacios) lstAcum)]) [x] estado
+    | largoLstAcm == n = pegadoConAjuste n xs ( lstFinal++[(insertBlanks numEspacios (lstAcum++[x]))] ) [] estado
     
     where largoLstAcm = (largoLst +(tokenLength x)) 
           largoLst = lineLength lstAcum
           numEspacios = (length lstAcum)-1
     --el largo de la lista acumulada + el largo del siguiente token 
-pegadoConAjuste n [] lstFinal lstAcum =  (lstFinal++[(insertBlanks (n-largoLstAcm+numEspacios) lstAcum)])
+pegadoConAjuste n [] lstFinal lstAcum estado =  (lstFinal++[(insertBlanks (n-largoLstAcm+numEspacios) lstAcum)])
     where largoLstAcm = (lineLength lstAcum)  
           numEspacios = (length lstAcum)-1
     --el largo de la lista acumulada + el largo del siguiente token 
 
 --SEPARADOS SIN AJUSTE
-separadoSinAjuste n [] lstFinal lstAcum = (lstFinal++[(insertBlanks numEspacios lstAcum)])
+separadoSinAjuste n [] lstFinal lstAcum _ = (lstFinal++[(insertBlanks numEspacios lstAcum)])
     where largoLstAcm = (lineLength lstAcum)  
           numEspacios = (length lstAcum)-1
 
-separadoSinAjuste n (x:xs) lstFinal lstAcum
-    | largoLstAcm < n = separadoSinAjuste n xs lstFinal (lstAcum++[x]) 
-    | largoLstAcm == n = pegadoConAjuste n xs (lstFinal++[(insertBlanks (n-largoLstAcm+numEspacios) lstAcum++[x])]) []
+separadoSinAjuste n (x:xs) lstFinal lstAcum estado
+    | largoLstAcm < n = separadoSinAjuste n xs lstFinal (lstAcum++[x]) estado
+    | largoLstAcm == n = separadoSinAjuste n xs (lstFinal++[(insertBlanks (n-largoLstAcm+numEspacios) lstAcum++[x])]) [] estado
    
     where largoLstAcm = (largoLst + (tokenLength x)) 
           largoLst = lineLength lstAcum
@@ -162,13 +162,13 @@ separadoSinAjuste n (x:xs) lstFinal lstAcum
     --el largo de la lista acumulada
     --el numero de espacios en la lista acumulada
 
-separadoSinAjuste n (x:xs) lstFinal lstAcum
-     | largoLstAcm > n = separadoSinAjuste n xs (lstFinal++[(insertBlanks numEspacios lstSeparada)]) (snd wrdSep) 
+separadoSinAjuste n (x:xs) lstFinal lstAcum estado
+     | largoLstAcm > n = separadoSinAjuste n xs (lstFinal++[(insertBlanks numEspacios lstSeparada)]) (snd wrdSep) estado
 
     where largoLstAcm = (largoLst +(tokenLength x)) 
           largoLst = lineLength lstAcum
           lstSeparada = (lstAcum++(fst wrdSep))
-          wrdSep = separadoAux x n largoLst --([HypWord x], [Word y])
+          wrdSep = separadoAux x n largoLst estado --([HypWord x], [Word y])
           numEspacios = (length lstSeparada)-1
     --el largo de la lista acumulada + el largo del siguiente token 
     --el largo de la lista acumulada
@@ -176,12 +176,12 @@ separadoSinAjuste n (x:xs) lstFinal lstAcum
     --palabra separada es una tupla con x elemento con guion y el resto en y
 
 --Esta funcion recibe un token Word que se desea separar al maximo pero sin superar el largo n
-separadoAux x n largoLst = 
+separadoAux x n largoLst estado = 
     if tupla == ([],[])
         then ([], [x])
     else
         tupla
-    where lista = hyphenate enHyp x
+    where lista = hyphenate estado x
           tupla = (maximaSeparacion lista n (largoLst+1) [])
           --lista de separaciones| maximo total| largo lista  mas un espacio| lista vacia
 
@@ -197,13 +197,13 @@ maximaSeparacion (x:xs) n largoLst []
 maximaSeparacion [] _ _ []  = ([],[])
 maximaSeparacion [] _ _ (x:xs) = ([x], xs) 
 
-separadoConAjuste n [] lstFinal lstAcum = (lstFinal++[(insertBlanks (n-largoLstAcm+numEspacios) lstAcum)])
+separadoConAjuste n [] lstFinal lstAcum _ = (lstFinal++[(insertBlanks (n-largoLstAcm+numEspacios) lstAcum)])
     where largoLstAcm = (lineLength lstAcum)  
           numEspacios = (length lstAcum)-1
 
-separadoConAjuste n (x:xs) lstFinal lstAcum
-    | largoLstAcm < n = separadoConAjuste n xs lstFinal (lstAcum++[x]) 
-    | largoLstAcm == n = separadoConAjuste n xs (lstFinal++[(insertBlanks (n-largoLstAcm+numEspacios) (lstAcum++[x]))]) []
+separadoConAjuste n (x:xs) lstFinal lstAcum estado
+    | largoLstAcm < n = separadoConAjuste n xs lstFinal (lstAcum++[x]) estado
+    | largoLstAcm == n = separadoConAjuste n xs (lstFinal++[(insertBlanks (n-largoLstAcm+numEspacios) (lstAcum++[x]))]) [] estado
    
     where largoLstAcm = (largoLst + (tokenLength x)) 
           largoLst = lineLength lstAcum
@@ -212,14 +212,14 @@ separadoConAjuste n (x:xs) lstFinal lstAcum
     --el largo de la lista acumulada
     --el numero de espacios en la lista acumulada
 
-separadoConAjuste n (x:xs) lstFinal lstAcum
-     | largoLstAcm > n = separadoConAjuste n xs (lstFinal++[(insertBlanks (n-largoSprd+numEspacios) lstSeparada)]) (snd wrdSep) 
+separadoConAjuste n (x:xs) lstFinal lstAcum estado
+     | largoLstAcm > n = separadoConAjuste n xs (lstFinal++[(insertBlanks (n-largoSprd+numEspacios) lstSeparada)]) (snd wrdSep) estado
 
     where largoLstAcm = (largoLst +(tokenLength x)) 
           largoLst = lineLength lstAcum
           lstSeparada = (lstAcum++(fst wrdSep))
           largoSprd = lineLength lstSeparada 
-          wrdSep = separadoAux x n largoLst --([HypWord x], [Word y])
+          wrdSep = separadoAux x n largoLst estado --([HypWord x], [Word y])
           numEspacios = (length lstSeparada)-1
     --el largo de la lista acumulada + el largo del siguiente token 
     --el largo de la lista acumulada
