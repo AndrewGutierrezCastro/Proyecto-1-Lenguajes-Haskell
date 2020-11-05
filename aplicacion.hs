@@ -1,5 +1,5 @@
 import Prelude hiding (null, lookup, map, filter)
-import Data.Map.Lazy hiding (sort,map,foldl)
+import Data.Map.Lazy hiding (sort,map,foldl,drop)
 import Data.Char
 import Data.List (sort,map)
 import System.IO
@@ -46,21 +46,17 @@ mainloop estado = do
                mainloop estado  
 
      "split" -> do 
-                mapM_ putStrLn [tokens!!1, tokens!!2, tokens!!3, tokens!!4]
+                let lngth = (read (tokens!!1) :: Int)
+                    sprar = tokens!!2
+                    ajst = tokens!!3
+                    tira = unwords (drop 4 tokens) 
+                
+                let str = splitFnt lngth sprar ajst tira estado        
+                mapM_ putStrLn str         
                 mainloop estado
-               {- let lngth = (read (tokens!!1) :: Int)
-                   sprar = tokens!!2
-                   ajst = tokens!!3
-                   tira = tokens!!4 -}
-                
-                --let str = 1 splitFnt lngth sprar ajst tira estado
-                
-            
-                --mapM_ putStrLn str         
-                
      
      "clsDic" -> do 
-               putStr ">> Diccionario Limpio"
+               putStrLn ">> Diccionario Limpio"
                mainloop (fromList[]) 
 
      "imp" -> do

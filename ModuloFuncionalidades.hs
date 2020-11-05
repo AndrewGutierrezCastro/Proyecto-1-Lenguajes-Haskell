@@ -153,7 +153,7 @@ separadoSinAjuste n [] lstFinal lstAcum _ = (lstFinal++[(insertBlanks numEspacio
 
 separadoSinAjuste n (x:xs) lstFinal lstAcum estado
     | largoLstAcm < n = separadoSinAjuste n xs lstFinal (lstAcum++[x]) estado
-    | largoLstAcm == n = separadoSinAjuste n xs (lstFinal++[(insertBlanks (n-largoLstAcm+numEspacios) lstAcum++[x])]) [] estado
+    -- | largoLstAcm == n = separadoSinAjuste n xs (lstFinal++[(insertBlanks (n-largoLstAcm+numEspacios) lstAcum++[x])]) [] estado
    
     where largoLstAcm = (largoLst + (tokenLength x)) 
           largoLst = lineLength lstAcum
@@ -163,7 +163,7 @@ separadoSinAjuste n (x:xs) lstFinal lstAcum estado
     --el numero de espacios en la lista acumulada
 
 separadoSinAjuste n (x:xs) lstFinal lstAcum estado
-     | largoLstAcm > n = separadoSinAjuste n xs (lstFinal++[(insertBlanks numEspacios lstSeparada)]) (snd wrdSep) estado
+     | largoLstAcm >= n = separadoSinAjuste n xs (lstFinal++[(insertBlanks numEspacios lstSeparada)]) (snd wrdSep) estado
 
     where largoLstAcm = (largoLst +(tokenLength x)) 
           largoLst = lineLength lstAcum
@@ -203,7 +203,7 @@ separadoConAjuste n [] lstFinal lstAcum _ = (lstFinal++[(insertBlanks (n-largoLs
 
 separadoConAjuste n (x:xs) lstFinal lstAcum estado
     | largoLstAcm < n = separadoConAjuste n xs lstFinal (lstAcum++[x]) estado
-    | largoLstAcm == n = separadoConAjuste n xs (lstFinal++[(insertBlanks (n-largoLstAcm+numEspacios) (lstAcum++[x]))]) [] estado
+  --  | largoLstAcm == n = separadoConAjuste n xs (lstFinal++[(insertBlanks (n-largoLstAcm+numEspacios) (lstAcum++[x]))]) [] estado
    
     where largoLstAcm = (largoLst + (tokenLength x)) 
           largoLst = lineLength lstAcum
@@ -213,7 +213,7 @@ separadoConAjuste n (x:xs) lstFinal lstAcum estado
     --el numero de espacios en la lista acumulada
 
 separadoConAjuste n (x:xs) lstFinal lstAcum estado
-     | largoLstAcm > n = separadoConAjuste n xs (lstFinal++[(insertBlanks (n-largoSprd+numEspacios) lstSeparada)]) (snd wrdSep) estado
+     | largoLstAcm >= n = separadoConAjuste n xs (lstFinal++[(insertBlanks (n-largoSprd+numEspacios) lstSeparada)]) (snd wrdSep) estado
 
     where largoLstAcm = (largoLst +(tokenLength x)) 
           largoLst = lineLength lstAcum
