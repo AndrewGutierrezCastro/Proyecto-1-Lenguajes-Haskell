@@ -36,15 +36,8 @@ mainloop estado = do
                hClose inh
                putStrLn $ "Archivo " ++ nombreArchivo ++ " fue cargado"
                mainloop nuevoestado
-               
-     "guardar" -> do
-               putStrLn ">>> Nombre archivo salida: "
-               nombreArchivo <- getLine
-               outh <- openFile nombreArchivo WriteMode
-               descargar outh (sort (toList estado))
-               hClose outh
-               mainloop estado  
 
+     -- >> split 20 n s Quien controla …
      "split" -> do 
                 let lngth = (read (tokens!!1) :: Int)
                     sprar = tokens!!2
@@ -54,7 +47,24 @@ mainloop estado = do
                 let str = splitFnt lngth sprar ajst tira estado        
                 mapM_ putStrLn str         
                 mainloop estado
-     
+
+     -- >> splitf 20 n s prueba1.txt
+     "splitf" -> do 
+                let lngth = (read (tokens!!1) :: Int)
+                    sprar = tokens!!2
+                    ajst = tokens!!3
+                    arch1 = tokens!!4 
+
+                inh <- openFile arch1 ReadMode
+                strRead <- cargarTxt inh ""
+                hClose inh
+
+                let str = splitFnt lngth sprar ajst strRead estado  
+                mapM_ putStrLn str   
+                let arch2 = unwords (drop 5 tokens)
+                guardado <- guardar arch2 str
+                mainloop estado
+                
      "clsDic" -> do 
                putStrLn ">> Diccionario Limpio"
                mainloop (fromList[]) 
@@ -89,9 +99,9 @@ cmd_imp :: Estado -> (Estado, String)
 cmd_imp estado = (estado, show estado)
 
 -- descargar :: Handle -> [(String,Int)] -> IO ()
-descargar outh [] = return ()
-descargar outh ((k,v):kvs) = do hPutStrLn outh $ k ++ " " ++ (show v)
-                                descargar outh kvs
+{- guardar outh [] = return ()
+guardar outh (x:xs) = do hPutStrLn outh $ x
+                                descargar outh kvs -}
 
 --funcion que implementa el comando Split
 splitFnt :: Int -> String -> String -> String -> Estado ->[String]                             
@@ -101,3 +111,19 @@ splitFnt n "s" "n" tira estado = separarYalinear n SEPARAR NOAJUSTAR tira estado
 splitFnt n "s" "s" tira estado = separarYalinear n SEPARAR AJUSTAR tira estado 
 
 
+--funcion que implementa la lectura de un archivo txt 
+cargarTxt inh str = do
+      ineof <- hIsEOF inh
+      if ineof then return str
+               else do inpStr <- hGetLine inh
+                       cargarTxt inh (str++inpStr)
+
+guardarTxt outh [] = return ()
+guardarTxt outh (s:xs) = do hPutStrLn outh s
+                            guardarTxt outh xs
+
+guardar arch2 str
+    | ((length (arch2)) < 4) || (str == []) = return ()
+    | otherwise = do outh <- openFile arch2 WriteMode
+                     guardarTxt outh str
+                     hClose outh
