@@ -1,7 +1,7 @@
 import Prelude hiding (null, lookup, map, filter)
 import Data.Map.Lazy hiding (sort,map,foldl,drop)
 import Data.Char
-import Data.List (sort,map)
+import Data.List (sort,map,intercalate)
 import System.IO
 import Data.List.Split
 import ModuloFuncionalidades
@@ -28,15 +28,24 @@ mainloop estado = do
   let comando = tokens!!0
   
   case comando of
-     "leer" -> do
-               putStrLn ">>> Nombre archivo entrada: "
-               nombreArchivo <- getLine
+     "load" -> do
+               let nombreArchivo = tokens!!1
                inh <- openFile nombreArchivo ReadMode
                nuevoestado <- cargar inh estado
                hClose inh
-               putStrLn $ "Archivo " ++ nombreArchivo ++ " fue cargado"
+               putStrLn $ "Diccionario cargado ("++(show(size nuevoestado))++" palabras)"
                mainloop nuevoestado
-
+     "save" -> do 
+               let nombreArchivo = tokens!!1
+               outh <- openFile nombreArchivo WriteMode
+               descargar outh (sort (toList estado))
+               hClose outh
+               putStrLn $ "Diccionario guardado ("++(show(size estado))++" palabras)"
+               mainloop estado 
+     "ins" -> do
+              let tira = unwords (drop 1 tokens) 
+              let nuevoEstado = ins estado tira
+              mainloop nuevoEstado
      -- >> split 20 n s Quien controla …
      "split" -> do 
                 let lngth = (read (tokens!!1) :: Int)
@@ -69,11 +78,11 @@ mainloop estado = do
                putStrLn ">> Diccionario Limpio"
                mainloop (fromList[]) 
 
-     "imp" -> do
+     "show" -> do
                  let (nuevoestado, salida) = cmd_imp estado
                  putStrLn salida
                  mainloop nuevoestado
-     "fin" -> do
+     "exit" -> do
                  putStrLn "Saliendo..."
      _     -> do
                  putStrLn $ "Comando desconocido ("++ comando ++"): '" ++ inpStr ++ "'" 
@@ -96,7 +105,7 @@ ins estado str = insert key wrds estado
 
 -- función que implementa el comando imp
 cmd_imp :: Estado -> (Estado, String)
-cmd_imp estado = (estado, show estado)
+cmd_imp estado = (estado, show (toList estado))
 
 -- descargar :: Handle -> [(String,Int)] -> IO ()
 {- guardar outh [] = return ()
@@ -127,3 +136,9 @@ guardar arch2 str
     | otherwise = do outh <- openFile arch2 WriteMode
                      guardarTxt outh str
                      hClose outh
+
+descargar outh [] = return ()
+descargar outh ((palabra,silabas):lst) = do 
+    hPutStrLn outh ( palabra ++ " " ++ (intercalate "-" silabas) )
+    descargar outh lst
+

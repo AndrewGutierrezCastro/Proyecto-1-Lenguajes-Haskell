@@ -38,7 +38,13 @@ token2String (Word wrd) = wrd
 token2String (Blank) = " "
 token2String (HypWord hpw) = hpw++"-" 
 
-lineLength line = sum (map tokenLength line) + ((length line)-1)
+lineLength line
+    |  lgth > 1 = sum (map tokenLength line) + ((length line)-1)
+    |  lgth == 1 = tokenLength (head line)
+    | otherwise = 0
+
+    where lgth = length line
+
 
 tokenLength (Word wrd) = length wrd
 tokenLength (Blank) = 1
@@ -87,27 +93,15 @@ lineBreaks mapa n line = takeWhile (\x -> (lineLength (fst x) ) <= n) listaCompl
           lineBreaksAux tupla = (inicioLista ++ [(fst tupla)], [(snd tupla)])  
 
 --InsertBlanks 
-insertBlanks n line
-    | line == [] = []
-    | (tail line) == [] || n <= 0 = line
-    | n > 0 = (insertBlanksAux line listaBlanks)
-    where listaBlanks = repElemt Blank numBlank n []
-          numBlank  = ceiling( div :: Double)
-          div =  ( (fromIntegral n) / (fromIntegral numEspacios) ) 
-          numEspacios =  ((length line) - 1 )
+insertBlanks n (x:xs)
+    | (length (x:xs)) == 1 || n <= 0 = x:xs
+    | n > 0 = x:(replicate numBlank Blank)  ++ (insertBlanks (n-numBlank) xs)
+    where numBlank  = ceiling( div :: Double)
+          div =  ( (fromIntegral n) / (fromIntegral (length xs)) ) 
 
 insertBlanksAux line listBlank
-    | line == [] || listBlank == [] = line
+    | listBlank == [] = line
     | otherwise = (head line):(head listBlank) ++ insertBlanksAux (tail line) (tail listBlank)
-
---elem : elemento a repetir
---n : cantidad de veces consecuitivas de repeticion
---m : numero maximo de elem en la lista final
---list : lista a guardar las repeticiones
-repElemt elem n m list
-    | (m-n) >= 0 =  (repElemt elem n (m-n) (list ++ [ replicate n elem ]) ) 
-    | (m-n) < 0 = (list ++ [ replicate m elem ])
-    | otherwise = list
     
 
 
@@ -135,11 +129,11 @@ pegadoSinAjuste _ [] lstFinal lstAcum  estado = lstFinal++[(insertBlanks numEspa
 pegadoConAjuste n (x:xs) lstFinal lstAcum estado
     | largoLstAcm < n = pegadoConAjuste n xs lstFinal (lstAcum++[x]) estado
     | largoLstAcm > n = pegadoConAjuste n xs (lstFinal++[(insertBlanks (n-largoLst+numEspacios) lstAcum)]) [x] estado
-    | largoLstAcm == n = pegadoConAjuste n xs ( lstFinal++[(insertBlanks numEspacios (lstAcum++[x]))] ) [] estado
+    | largoLstAcm == n = pegadoConAjuste n xs ( lstFinal++[(insertBlanks numEspacios lstAcum)] ) [x] estado
     
-    where largoLstAcm = (largoLst +(tokenLength x)) 
-          largoLst = lineLength lstAcum
-          numEspacios = (length lstAcum)-1
+    where largoLstAcm = (largoLst +(tokenLength x) + 1) 
+          largoLst = lineLength lstAcum 
+          numEspacios = (length lstAcum)-1 
     --el largo de la lista acumulada + el largo del siguiente token 
 pegadoConAjuste n [] lstFinal lstAcum estado =  (lstFinal++[(insertBlanks (n-largoLstAcm+numEspacios) lstAcum)])
     where largoLstAcm = (lineLength lstAcum)  
